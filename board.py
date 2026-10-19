@@ -15,6 +15,7 @@ LABELS = {
 
 ORTHOGONAL = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 ALL_EIGHT = ORTHOGONAL + [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+VALUES = {"e": 1, "mu": 3, "W": 3, "cp": 2, "t": 0}
 KNIGHT = [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
 
 
@@ -152,6 +153,31 @@ class Board:
                             removed.append(partner)
                             found = True
         return removed
+
+    def winner(self, caused_by):
+        matter_top = False
+        anti_top = False
+        for piece in self.pieces:
+            if piece.kind == "t" and piece.side == "M":
+                matter_top = True
+            if piece.kind == "t" and piece.side == "A":
+                anti_top = True
+        if matter_top and anti_top:
+            return None
+        if matter_top:
+            return "M"
+        if anti_top:
+            return "A"
+        if caused_by == "M":
+            return "A"
+        return "M"
+
+    def score(self, side):
+        total = 0
+        for piece in self.pieces:
+            if piece.side == side:
+                total += VALUES[piece.kind]
+        return total
 
     def breaks_exclusion(self, piece, dest):
         for other in self.pieces:

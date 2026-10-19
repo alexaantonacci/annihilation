@@ -349,3 +349,49 @@ def test_bell_link_chain():
     assert anti_w in removed
     assert first_link not in board.links
     assert second_link not in board.links
+
+
+def test_winner_none_at_start():
+    board = Board()
+    board.setup()
+    assert board.winner("M") is None
+
+
+def test_winner_antitop_gone():
+    board = Board()
+    board.setup()
+    board.pieces.remove(board.get((5, 2)))
+    assert board.winner("M") == "M"
+
+
+def test_winner_top_gone():
+    board = Board()
+    board.setup()
+    board.pieces.remove(board.get((0, 2)))
+    assert board.winner("A") == "A"
+
+
+def test_winner_both_gone():
+    board = Board()
+    board.setup()
+    board.pieces.remove(board.get((0, 2)))
+    board.pieces.remove(board.get((5, 2)))
+    assert board.winner("M") == "A"
+    assert board.winner("A") == "M"
+
+
+def test_score_start():
+    board = Board()
+    board.setup()
+    assert board.score("M") == 8
+    assert board.score("A") == 8
+
+
+def test_score_values():
+    board = Board()
+    board.pieces.append(Piece(side="M", kind="cp", pos=(0, 0)))
+    board.pieces.append(Piece(side="M", kind="W", pos=(0, 1)))
+    board.pieces.append(Piece(side="M", kind="mu", pos=(0, 2)))
+    board.pieces.append(Piece(side="M", kind="e", pos=(0, 3)))
+    board.pieces.append(Piece(side="M", kind="t", pos=(0, 4)))
+    assert board.score("M") == 9
