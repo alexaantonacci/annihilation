@@ -247,3 +247,34 @@ def test_annihilate_out_of_range():
     with pytest.raises(ValueError):
         board.annihilate(matter_t, anti_t)
     assert len(board.pieces) == 10
+
+
+def test_cooper_pair_target_loses_life():
+    board = Board()
+    cp = Piece(side="A", kind="cp", pos=(2, 2), lives=2)
+    matter_e = Piece(side="M", kind="e", pos=(1, 1))
+    anti_mu = Piece(side="A", kind="mu", pos=(3, 3))
+    board.pieces.append(cp)
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_mu)
+    removed = board.annihilate(matter_e, cp)
+    assert matter_e not in board.pieces
+    assert board.get((2, 2)) is cp
+    assert cp.kind == "e"
+    assert cp.lives == 1
+    assert anti_mu not in board.pieces
+    assert cp not in removed
+
+
+def test_cooper_pair_attacker_loses_life():
+    board = Board()
+    cp = Piece(side="M", kind="cp", pos=(2, 2), lives=2)
+    anti_e = Piece(side="A", kind="e", pos=(3, 2))
+    board.pieces.append(cp)
+    board.pieces.append(anti_e)
+    removed = board.annihilate(cp, anti_e)
+    assert anti_e not in board.pieces
+    assert board.get((2, 2)) is cp
+    assert cp.kind == "e"
+    assert cp.lives == 1
+    assert cp not in removed

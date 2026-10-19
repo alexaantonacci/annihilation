@@ -123,10 +123,19 @@ class Board:
     def annihilate(self, attacker, target):
         if target not in self.targets(attacker):
             raise ValueError(f"{attacker.kind} on {attacker.pos} cannot annihilate the piece on {target.pos}")
-        self.pieces.remove(attacker)
-        self.pieces.remove(target)
-        removed = [attacker, target]
+        removed = []
+        survivors = []
+        for piece in (attacker, target):
+            if piece.kind == "cp" and piece.lives == 2:
+                piece.kind = "e"
+                piece.lives = 1
+                survivors.append(piece)
+            else:
+                self.pieces.remove(piece)
+                removed.append(piece)
         for piece in list(self.pieces):
+            if piece in survivors:
+                continue
             if is_fermion(piece) and adjacent(piece.pos, target.pos):
                 self.pieces.remove(piece)
                 removed.append(piece)
