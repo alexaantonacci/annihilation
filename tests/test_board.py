@@ -105,3 +105,27 @@ def test_moves_W():
     board.setup()
     piece = board.get((0, 3))
     assert set(board.moves(piece)) == {(1, 5), (2, 2), (2, 4)}
+
+
+def test_exclusion_same_side_electrons():
+    board = Board()
+    electron = Piece(side="M", kind="e", pos=(2, 2))
+    board.pieces.append(electron)
+    board.pieces.append(Piece(side="M", kind="e", pos=(2, 4)))
+    assert set(board.moves(electron)) == {(1, 1), (1, 2), (2, 1), (3, 1), (3, 2)}
+
+
+def test_exclusion_enemy_electron_ok():
+    board = Board()
+    electron = Piece(side="M", kind="e", pos=(2, 2))
+    board.pieces.append(electron)
+    board.pieces.append(Piece(side="A", kind="e", pos=(2, 4)))
+    assert (2, 3) in board.moves(electron)
+
+
+def test_exclusion_different_kinds_ok():
+    board = Board()
+    muon = Piece(side="M", kind="mu", pos=(2, 2))
+    board.pieces.append(muon)
+    board.pieces.append(Piece(side="M", kind="e", pos=(2, 4)))
+    assert (2, 3) in board.moves(muon)
