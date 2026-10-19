@@ -120,6 +120,18 @@ class Board:
             raise ValueError(f"{piece.kind} on {piece.pos} cannot move to {pos}: illegal square")
         piece.pos = pos
 
+    def annihilate(self, attacker, target):
+        if target not in self.targets(attacker):
+            raise ValueError(f"{attacker.kind} on {attacker.pos} cannot annihilate the piece on {target.pos}")
+        self.pieces.remove(attacker)
+        self.pieces.remove(target)
+        removed = [attacker, target]
+        for piece in list(self.pieces):
+            if is_fermion(piece) and adjacent(piece.pos, target.pos):
+                self.pieces.remove(piece)
+                removed.append(piece)
+        return removed
+
     def breaks_exclusion(self, piece, dest):
         for other in self.pieces:
             if other is piece:

@@ -194,3 +194,56 @@ def test_move_illegal():
     with pytest.raises(ValueError):
         board.move(top, (3, 2))
     assert top.pos == (0, 2)
+
+
+def test_annihilate_removes_both():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(2, 2))
+    anti_e = Piece(side="A", kind="e", pos=(3, 3))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    removed = board.annihilate(matter_e, anti_e)
+    assert matter_e not in board.pieces
+    assert anti_e not in board.pieces
+    assert matter_e in removed
+    assert anti_e in removed
+
+
+def test_burst_kills_fermions_spares_bosons():
+    board = Board()
+    muon = Piece(side="M", kind="mu", pos=(2, 2))
+    anti_t = Piece(side="A", kind="t", pos=(4, 2))
+    w_boson = Piece(side="A", kind="W", pos=(5, 3))
+    board.pieces.append(muon)
+    board.pieces.append(anti_t)
+    board.pieces.append(Piece(side="A", kind="mu", pos=(5, 1)))
+    board.pieces.append(w_boson)
+    board.pieces.append(Piece(side="M", kind="e", pos=(3, 3)))
+    removed = board.annihilate(muon, anti_t)
+    assert {p.pos for p in removed} == {(2, 2), (4, 2), (5, 1), (3, 3)}
+    assert w_boson in board.pieces
+
+
+def test_burst_no_chain():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(1, 1))
+    anti_e = Piece(side="A", kind="e", pos=(2, 2))
+    near_mu = Piece(side="A", kind="mu", pos=(3, 3))
+    far_mu = Piece(side="M", kind="mu", pos=(4, 4))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    board.pieces.append(near_mu)
+    board.pieces.append(far_mu)
+    board.annihilate(matter_e, anti_e)
+    assert near_mu not in board.pieces
+    assert far_mu in board.pieces
+
+
+def test_annihilate_out_of_range():
+    board = Board()
+    board.setup()
+    matter_t = board.get((0, 2))
+    anti_t = board.get((5, 2))
+    with pytest.raises(ValueError):
+        board.annihilate(matter_t, anti_t)
+    assert len(board.pieces) == 10
