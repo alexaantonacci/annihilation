@@ -23,6 +23,18 @@ def on_board(pos):
     return 0 <= row < SIZE and 0 <= col < SIZE
 
 
+def is_fermion(piece):
+    return piece.kind in ("t", "e", "mu")
+
+
+def adjacent(a, b):
+    if a == b:
+        return False
+    row_a, col_a = a
+    row_b, col_b = b
+    return abs(row_a - row_b) <= 1 and abs(col_a - col_b) <= 1
+
+
 class Board:
     def __init__(self):
         self.pieces = []
@@ -86,4 +98,14 @@ class Board:
             for dr, dc in KNIGHT:
                 if self.is_free((row + dr, col + dc)):
                     result.append((row + dr, col + dc))
+        if is_fermion(piece):
+            result = [dest for dest in result if not self.breaks_exclusion(piece, dest)]
         return result
+
+    def breaks_exclusion(self, piece, dest):
+        for other in self.pieces:
+            if other is piece:
+                continue
+            if other.side == piece.side and other.kind == piece.kind and adjacent(dest, other.pos):
+                return True
+        return False
