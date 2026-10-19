@@ -129,3 +129,47 @@ def test_exclusion_different_kinds_ok():
     board.pieces.append(muon)
     board.pieces.append(Piece(side="M", kind="e", pos=(2, 4)))
     assert (2, 3) in board.moves(muon)
+
+
+def test_targets_worked_example():
+    board = Board()
+    muon = Piece(side="M", kind="mu", pos=(2, 2))
+    board.pieces.append(muon)
+    board.pieces.append(Piece(side="A", kind="e", pos=(4, 0)))
+    board.pieces.append(Piece(side="A", kind="t", pos=(4, 2)))
+    assert {p.pos for p in board.targets(muon)} == {(4, 0), (4, 2)}
+
+
+def test_targets_blocked_by_friend():
+    board = Board()
+    muon = Piece(side="M", kind="mu", pos=(2, 2))
+    board.pieces.append(muon)
+    board.pieces.append(Piece(side="M", kind="e", pos=(3, 2)))
+    board.pieces.append(Piece(side="A", kind="t", pos=(4, 2)))
+    assert (4, 2) not in {p.pos for p in board.targets(muon)}
+
+
+def test_targets_W_jumps():
+    board = Board()
+    w_boson = Piece(side="M", kind="W", pos=(0, 3))
+    board.pieces.append(w_boson)
+    board.pieces.append(Piece(side="M", kind="e", pos=(1, 3)))
+    board.pieces.append(Piece(side="M", kind="e", pos=(1, 4)))
+    board.pieces.append(Piece(side="A", kind="e", pos=(2, 4)))
+    assert {p.pos for p in board.targets(w_boson)} == {(2, 4)}
+
+
+def test_targets_ignore_exclusion():
+    board = Board()
+    electron = Piece(side="M", kind="e", pos=(2, 2))
+    board.pieces.append(electron)
+    board.pieces.append(Piece(side="M", kind="e", pos=(2, 4)))
+    board.pieces.append(Piece(side="A", kind="e", pos=(3, 3)))
+    assert (3, 3) in {p.pos for p in board.targets(electron)}
+
+
+def test_targets_start_position():
+    board = Board()
+    board.setup()
+    for piece in board.pieces:
+        assert {p.pos for p in board.targets(piece)} == set(), f"{piece.pos} should have no targets"

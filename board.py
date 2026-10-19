@@ -75,31 +75,44 @@ class Board:
     def is_free(self, pos):
         return on_board(pos) and self.get(pos) is None
 
-    def moves(self, piece):
+    def reachable(self, piece):
         row, col = piece.pos
         result = []
         if piece.kind == "t":
-            for dr, dc in ORTHOGONAL:
-                if self.is_free((row + dr, col + dc)):
-                    result.append((row + dr, col + dc))
+            steps = ORTHOGONAL
         elif piece.kind in ("e", "cp"):
-            for dr, dc in ALL_EIGHT:
-                if self.is_free((row + dr, col + dc)):
-                    result.append((row + dr, col + dc))
+            steps = ALL_EIGHT
+        elif piece.kind == "W":
+            steps = KNIGHT
         elif piece.kind == "mu":
             for dr, dc in ALL_EIGHT:
                 one = (row + dr, col + dc)
-                if self.is_free(one):
+                if on_board(one):
                     result.append(one)
-                    two = (row + 2 * dr, col + 2 * dc)
-                    if self.is_free(two):
-                        result.append(two)
-        elif piece.kind == "W":
-            for dr, dc in KNIGHT:
-                if self.is_free((row + dr, col + dc)):
-                    result.append((row + dr, col + dc))
+                    if self.get(one) is None:
+                        two = (row + 2 * dr, col + 2 * dc)
+                        if on_board(two):
+                            result.append(two)
+            return result
+        else:
+            return result
+        for dr, dc in steps:
+            if on_board((row + dr, col + dc)):
+                result.append((row + dr, col + dc))
+        return result
+
+    def moves(self, piece):
+        result = [dest for dest in self.reachable(piece) if self.get(dest) is None]
         if is_fermion(piece):
             result = [dest for dest in result if not self.breaks_exclusion(piece, dest)]
+        return result
+
+    def targets(self, piece):
+        result = []
+        for dest in self.reachable(piece):
+            other = self.get(dest)
+            if other is not None and other.side != piece.side:
+                result.append(other)
         return result
 
     def breaks_exclusion(self, piece, dest):
