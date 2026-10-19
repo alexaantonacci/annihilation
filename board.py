@@ -11,6 +11,8 @@ LABELS = {
     ("A", "t"): "T",
     ("A", "W"): "W+",
     ("A", "e"): "e+",
+    ("M", "cp"): "cp-",
+    ("A", "cp"): "cp+",
 }
 
 ORTHOGONAL = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -148,7 +150,7 @@ class Board:
                 if first in removed or second in removed:
                     self.links.remove(link)
                     for partner in (first, second):
-                        if partner not in removed:
+                        if partner not in removed and partner in self.pieces:
                             self.pieces.remove(partner)
                             removed.append(partner)
                             found = True

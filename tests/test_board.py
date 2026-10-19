@@ -395,3 +395,17 @@ def test_score_values():
     board.pieces.append(Piece(side="M", kind="e", pos=(0, 3)))
     board.pieces.append(Piece(side="M", kind="t", pos=(0, 4)))
     assert board.score("M") == 9
+
+
+def test_bell_link_stale_partner():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(2, 2))
+    anti_e = Piece(side="A", kind="e", pos=(3, 3))
+    gone_mu = Piece(side="A", kind="mu", pos=(5, 5))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    link = (anti_e, gone_mu)
+    board.links.append(link)
+    removed = board.annihilate(matter_e, anti_e)
+    assert gone_mu not in removed
+    assert link not in board.links
