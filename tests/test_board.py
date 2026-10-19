@@ -28,3 +28,43 @@ def test_get_empty_square():
     electron = Piece(side="matter", kind="e", pos=(1, 1))
     board.pieces.append(electron)
     assert board.get((3, 3)) is None
+
+
+def test_setup_has_ten_pieces():
+    board = Board()
+    board.setup()
+    assert len(board.pieces) == 10
+    matter = [piece for piece in board.pieces if piece.side == "M"]
+    antimatter = [piece for piece in board.pieces if piece.side == "A"]
+    assert len(matter) == 5
+    assert len(antimatter) == 5
+
+
+def test_setup_squares():
+    board = Board()
+    board.setup()
+    expected = [
+        ("M", "mu", (0, 1)),
+        ("M", "t", (0, 2)),
+        ("M", "W", (0, 3)),
+        ("M", "e", (1, 1)),
+        ("M", "e", (1, 4)),
+        ("A", "mu", (5, 1)),
+        ("A", "t", (5, 2)),
+        ("A", "W", (5, 3)),
+        ("A", "e", (4, 1)),
+        ("A", "e", (4, 4)),
+    ]
+    for side, kind, pos in expected:
+        piece = board.get(pos)
+        assert piece is not None, f"no piece on {pos}"
+        assert piece.side == side, f"wrong side on {pos}"
+        assert piece.kind == kind, f"wrong kind on {pos}"
+
+
+def test_setup_empty_middle():
+    board = Board()
+    board.setup()
+    for row in (2, 3):
+        for col in range(6):
+            assert board.get((row, col)) is None, f"{(row, col)} should be empty"
