@@ -115,6 +115,11 @@ class Board:
                 result.append(other)
         return result
 
+    def move(self, piece, pos):
+        if pos not in self.moves(piece):
+            raise ValueError(f"{piece.kind} on {piece.pos} cannot move to {pos}: illegal square")
+        piece.pos = pos
+
     def breaks_exclusion(self, piece, dest):
         for other in self.pieces:
             if other is piece:

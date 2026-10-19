@@ -1,3 +1,5 @@
+import pytest
+
 from board import Board, on_board
 from pieces import Piece
 
@@ -173,3 +175,22 @@ def test_targets_start_position():
     board.setup()
     for piece in board.pieces:
         assert {p.pos for p in board.targets(piece)} == set(), f"{piece.pos} should have no targets"
+
+
+def test_move_legal():
+    board = Board()
+    board.setup()
+    top = board.get((0, 2))
+    board.move(top, (1, 2))
+    assert top.pos == (1, 2)
+    assert board.get((1, 2)) is top
+    assert board.get((0, 2)) is None
+
+
+def test_move_illegal():
+    board = Board()
+    board.setup()
+    top = board.get((0, 2))
+    with pytest.raises(ValueError):
+        board.move(top, (3, 2))
+    assert top.pos == (0, 2)
