@@ -278,3 +278,74 @@ def test_cooper_pair_attacker_loses_life():
     assert cp.kind == "e"
     assert cp.lives == 1
     assert cp not in removed
+
+
+def test_bell_link_partner_removed():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(2, 2))
+    anti_e = Piece(side="A", kind="e", pos=(3, 3))
+    linked_mu = Piece(side="A", kind="mu", pos=(5, 5))
+    bystander = Piece(side="A", kind="e", pos=(4, 5))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    board.pieces.append(linked_mu)
+    board.pieces.append(bystander)
+    board.links.append((anti_e, linked_mu))
+    removed = board.annihilate(matter_e, anti_e)
+    assert linked_mu not in board.pieces
+    assert linked_mu in removed
+    assert bystander in board.pieces
+
+
+def test_bell_link_via_burst():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(1, 1))
+    anti_e = Piece(side="A", kind="e", pos=(2, 2))
+    anti_mu = Piece(side="A", kind="mu", pos=(3, 3))
+    linked_w = Piece(side="A", kind="W", pos=(5, 0))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    board.pieces.append(anti_mu)
+    board.pieces.append(linked_w)
+    board.links.append((anti_mu, linked_w))
+    removed = board.annihilate(matter_e, anti_e)
+    assert anti_mu not in board.pieces
+    assert linked_w not in board.pieces
+    assert linked_w in removed
+
+
+def test_bell_link_cleared():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(2, 2))
+    anti_e = Piece(side="A", kind="e", pos=(3, 3))
+    linked_mu = Piece(side="A", kind="mu", pos=(5, 5))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    board.pieces.append(linked_mu)
+    link = (anti_e, linked_mu)
+    board.links.append(link)
+    board.annihilate(matter_e, anti_e)
+    assert link not in board.links
+
+
+def test_bell_link_chain():
+    board = Board()
+    matter_e = Piece(side="M", kind="e", pos=(2, 2))
+    anti_e = Piece(side="A", kind="e", pos=(3, 3))
+    anti_mu = Piece(side="A", kind="mu", pos=(5, 0))
+    anti_w = Piece(side="A", kind="W", pos=(0, 5))
+    board.pieces.append(matter_e)
+    board.pieces.append(anti_e)
+    board.pieces.append(anti_mu)
+    board.pieces.append(anti_w)
+    first_link = (anti_e, anti_mu)
+    second_link = (anti_mu, anti_w)
+    board.links.append(second_link)
+    board.links.append(first_link)
+    removed = board.annihilate(matter_e, anti_e)
+    assert anti_mu not in board.pieces
+    assert anti_w not in board.pieces
+    assert anti_mu in removed
+    assert anti_w in removed
+    assert first_link not in board.links
+    assert second_link not in board.links

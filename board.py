@@ -139,6 +139,18 @@ class Board:
             if is_fermion(piece) and adjacent(piece.pos, target.pos):
                 self.pieces.remove(piece)
                 removed.append(piece)
+        found = True
+        while found:
+            found = False
+            for link in list(self.links):
+                first, second = link
+                if first in removed or second in removed:
+                    self.links.remove(link)
+                    for partner in (first, second):
+                        if partner not in removed:
+                            self.pieces.remove(partner)
+                            removed.append(partner)
+                            found = True
         return removed
 
     def breaks_exclusion(self, piece, dest):
