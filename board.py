@@ -13,6 +13,10 @@ LABELS = {
     ("A", "e"): "e+",
 }
 
+ORTHOGONAL = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+ALL_EIGHT = ORTHOGONAL + [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+KNIGHT = [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
+
 
 def on_board(pos):
     row, col = pos
@@ -55,3 +59,31 @@ class Board:
                     cells.append(LABELS.get((piece.side, piece.kind), piece.kind))
             print(str(row + 1) + "  " + " ".join(cell.ljust(3) for cell in cells))
         print("   " + " ".join(letter.ljust(3) for letter in "abcdef"))
+
+    def is_free(self, pos):
+        return on_board(pos) and self.get(pos) is None
+
+    def moves(self, piece):
+        row, col = piece.pos
+        result = []
+        if piece.kind == "t":
+            for dr, dc in ORTHOGONAL:
+                if self.is_free((row + dr, col + dc)):
+                    result.append((row + dr, col + dc))
+        elif piece.kind in ("e", "cp"):
+            for dr, dc in ALL_EIGHT:
+                if self.is_free((row + dr, col + dc)):
+                    result.append((row + dr, col + dc))
+        elif piece.kind == "mu":
+            for dr, dc in ALL_EIGHT:
+                one = (row + dr, col + dc)
+                if self.is_free(one):
+                    result.append(one)
+                    two = (row + 2 * dr, col + 2 * dc)
+                    if self.is_free(two):
+                        result.append(two)
+        elif piece.kind == "W":
+            for dr, dc in KNIGHT:
+                if self.is_free((row + dr, col + dc)):
+                    result.append((row + dr, col + dc))
+        return result

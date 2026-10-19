@@ -68,3 +68,40 @@ def test_setup_empty_middle():
     for row in (2, 3):
         for col in range(6):
             assert board.get((row, col)) is None, f"{(row, col)} should be empty"
+
+
+def test_moves_top_quark():
+    board = Board()
+    board.setup()
+    piece = board.get((0, 2))
+    assert set(board.moves(piece)) == {(1, 2)}
+
+
+def test_moves_electron_b2():
+    board = Board()
+    board.setup()
+    piece = board.get((1, 1))
+    assert set(board.moves(piece)) == {(0, 0), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)}
+
+
+def test_moves_electron_e2():
+    board = Board()
+    board.setup()
+    piece = board.get((1, 4))
+    assert set(board.moves(piece)) == {
+        (0, 4), (0, 5), (1, 3), (1, 5), (2, 3), (2, 4), (2, 5)
+    }
+
+
+def test_moves_muon():
+    board = Board()
+    board.setup()
+    piece = board.get((0, 1))
+    assert set(board.moves(piece)) == {(0, 0), (1, 0), (1, 2), (2, 3)}
+
+
+def test_moves_W():
+    board = Board()
+    board.setup()
+    piece = board.get((0, 3))
+    assert set(board.moves(piece)) == {(1, 5), (2, 2), (2, 4)}
