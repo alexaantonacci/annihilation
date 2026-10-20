@@ -1,1 +1,6 @@
 pytest
+qiskit
+qiskit-aer
+numpy
+matplotlib
+pylatexenc
