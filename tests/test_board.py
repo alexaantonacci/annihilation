@@ -212,16 +212,42 @@ def test_annihilate_removes_both():
 def test_burst_kills_fermions_spares_bosons():
     board = Board()
     muon = Piece(side="M", kind="mu", pos=(2, 2))
-    anti_t = Piece(side="A", kind="t", pos=(4, 2))
+    anti_mu = Piece(side="A", kind="mu", pos=(4, 2))
     w_boson = Piece(side="A", kind="W", pos=(5, 3))
     board.pieces.append(muon)
-    board.pieces.append(anti_t)
-    board.pieces.append(Piece(side="A", kind="mu", pos=(5, 1)))
+    board.pieces.append(anti_mu)
+    board.pieces.append(Piece(side="A", kind="e", pos=(5, 1)))
     board.pieces.append(w_boson)
     board.pieces.append(Piece(side="M", kind="e", pos=(3, 3)))
-    removed = board.annihilate(muon, anti_t)
+    removed = board.annihilate(muon, anti_mu)
     assert {p.pos for p in removed} == {(2, 2), (4, 2), (5, 1), (3, 3)}
     assert w_boson in board.pieces
+
+
+def test_no_burst_without_pair():
+    board = Board()
+    muon = Piece(side="M", kind="mu", pos=(2, 2))
+    anti_t = Piece(side="A", kind="t", pos=(4, 2))
+    bystander = Piece(side="M", kind="e", pos=(3, 3))
+    board.pieces.append(muon)
+    board.pieces.append(anti_t)
+    board.pieces.append(bystander)
+    removed = board.annihilate(muon, anti_t)
+    assert {p.pos for p in removed} == {(2, 2), (4, 2)}
+    assert bystander in board.pieces
+
+
+def test_cooper_pair_counts_as_electron_pair():
+    board = Board()
+    positron = Piece(side="A", kind="e", pos=(2, 3))
+    pair = Piece(side="M", kind="cp", pos=(1, 2), lives=2)
+    bystander = Piece(side="A", kind="mu", pos=(0, 2))
+    board.pieces.append(positron)
+    board.pieces.append(pair)
+    board.pieces.append(bystander)
+    board.annihilate(positron, pair)
+    assert bystander not in board.pieces
+    assert pair.kind == "e"
 
 
 def test_burst_no_chain():

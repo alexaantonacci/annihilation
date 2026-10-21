@@ -38,6 +38,13 @@ def adjacent(a, b):
     return abs(row_a - row_b) <= 1 and abs(col_a - col_b) <= 1
 
 
+def is_pair(a, b):
+    # only a particle and its own antiparticle annihilate (a Cooper pair counts as electrons)
+    kind_a = "e" if a.kind == "cp" else a.kind
+    kind_b = "e" if b.kind == "cp" else b.kind
+    return kind_a == kind_b
+
+
 class Board:
     def __init__(self):
         self.pieces = []
@@ -126,6 +133,7 @@ class Board:
     def annihilate(self, attacker, target):
         if target not in self.targets(attacker):
             raise ValueError(f"{attacker.kind} on {attacker.pos} cannot annihilate the piece on {target.pos}")
+        burst = is_pair(attacker, target)
         removed = []
         survivors = []
         for piece in (attacker, target):
@@ -139,7 +147,7 @@ class Board:
         for piece in list(self.pieces):
             if piece in survivors:
                 continue
-            if is_fermion(piece) and adjacent(piece.pos, target.pos):
+            if burst and is_fermion(piece) and adjacent(piece.pos, target.pos):
                 self.pieces.remove(piece)
                 removed.append(piece)
         found = True
